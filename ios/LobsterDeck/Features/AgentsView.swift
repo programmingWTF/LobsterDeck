@@ -21,9 +21,14 @@ struct AgentsView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     if let repo {
+                        // The chart bars inside are the tappable part (tap a
+                        // day -> per-agent breakdown below). The container
+                        // glass itself was still non-interactive, so tapping
+                        // the big card outside the chart felt dead; make it
+                        // interactive so the whole card gives press feedback.
                         AgentOverviewCard(repo: repo)
                             .padding(16)
-                            .glassEffect(.regular.tint(Color.lobster.opacity(0.08)),
+                            .glassEffect(.regular.tint(Color.lobster.opacity(0.08)).interactive(),
                                          in: .rect(cornerRadius: 24))
                     }
                     ForEach(state.agents) { a in

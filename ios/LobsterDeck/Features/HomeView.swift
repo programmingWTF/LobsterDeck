@@ -69,7 +69,8 @@ struct HomeView: View {
                 if state.overview == nil { await state.refreshAll() }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .deckTopBar()
+            .deckTitle("首页")
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {

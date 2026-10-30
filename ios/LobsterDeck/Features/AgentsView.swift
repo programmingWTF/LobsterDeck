@@ -49,8 +49,9 @@ struct AgentsView: View {
                 await state.refreshAgents()
                 await loadRepo()
             }
-            .navigationTitle("Agent")
-            .deckTopBar()
+            .deckTitle("Agent")
+            .navigationBarTitleDisplayMode(.inline)
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .task { await loadRepo() }
             .navigationDestination(for: Route.self) { route in
                 switch route {
@@ -189,16 +190,15 @@ struct AgentDetailView: View {
         )
         .environment(\.agentTint, color)
         .tint(color)
-        .navigationTitle(info?.displayName ?? agent)
+        .deckTitle(info?.displayName ?? agent, tint: color)
         .navigationBarTitleDisplayMode(.inline)
-        // Detail background stays white + agent colour only; the top bar
-        // itself is now the shared scroll-edge glass (see deckTopBar):
-        // no bar at the top of the page, a faint ultraThin bar only
-        // once the user scrolls, not the opaque systemBackground bar
-        // that used to look solid black in dark mode. Hide the tab bar,
-        // whose glass bar + global orange icon would otherwise leak
-        // orange into the detail page.
-        .deckTopBar()
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        // Detail background stays white + agent colour only; the top
+        // itself has no bar layer at all (see deckTitle), only the
+        // agent-coloured glass title pill in the middle, not the
+        // opaque systemBackground bar that used to look solid black
+        // in dark mode. Hide the tab bar, whose glass bar + global
+        // orange icon would otherwise leak orange into the detail page.
         .toolbar(.hidden, for: .tabBar)
         .task { await load() }
     }
@@ -350,10 +350,10 @@ struct CommitDetailView: View {
         )
         .environment(\.agentTint, tint)
         .tint(tint ?? .gray)
-        .deckTopBar()
-        .toolbar(.hidden, for: .tabBar)
-        .navigationTitle("变更详情")
+        .deckTitle("变更详情", tint: tint ?? .gray)
         .navigationBarTitleDisplayMode(.inline)
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             // Auto-wrap toggle, top right. Same construction as the
             // other pages' topBarTrailing buttons (icon only, 32pt

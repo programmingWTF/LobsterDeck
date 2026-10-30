@@ -21,11 +21,11 @@ targets:
       properties:
         CFBundleDisplayName: 龙虾驾驶舱
         CFBundleShortVersionString: "1.0"
-        # Bumped for the scroll-edge top bar so the new IPA is
-        # distinguishable from 1.0 (3): Settings shows "1.0 (4)".
+        # Bumped for the glass title pill top so the new IPA is
+        # distinguishable from 1.0 (4): Settings shows "1.0 (5)".
         # Without a bump, installers treat all builds as the same
         # version and the user cannot tell old from new.
-        CFBundleVersion: "4"
+        CFBundleVersion: "5"
         UILaunchScreen:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:

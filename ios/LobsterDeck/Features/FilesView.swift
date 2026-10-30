@@ -37,8 +37,7 @@ struct FilesView: View {
             }
             .scrollIndicators(.hidden)
             .refreshable { await state.refreshAll() }
-            .navigationTitle("文件")
-            .deckTopBar()
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .folder(let p): FileBrowserView(path: p, scrolls: true)
@@ -118,9 +117,9 @@ struct FileBrowserView: View {
                 content
             }
         }
-        .navigationTitle(path.isEmpty ? "文件" : (path as NSString).lastPathComponent)
-        .navigationBarTitleDisplayMode(scrolls ? .inline : .large)
-        .deckTopBar()
+        .deckTitle(path.isEmpty ? "文件" : (path as NSString).lastPathComponent)
+        .navigationBarTitleDisplayMode(.inline)
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { importing = true } label: {
@@ -288,9 +287,8 @@ struct FilePreviewScreen: View {
                 ProgressView("正在取回文件…")
             }
         }
-        .navigationTitle((path as NSString).lastPathComponent)
+        .deckTitle((path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
-        .deckTopBar()
         .toolbar {
             if let localURL {
                 ToolbarItem(placement: .topBarTrailing) {

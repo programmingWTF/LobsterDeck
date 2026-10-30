@@ -40,8 +40,9 @@ struct ReportsView: View {
             }
             .scrollIndicators(.hidden)
             .refreshable { await state.refreshReports() }
-            .navigationTitle("报告")
-            .deckTopBar()
+            .deckTitle("报告")
+            .navigationBarTitleDisplayMode(.inline)
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .searchable(text: $query, prompt: "搜索报告")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -139,9 +140,8 @@ struct ReportDetailView: View {
                 ProgressView()
             }
         }
-        .navigationTitle(report?.title ?? "报告")
+        .deckTitle(report?.title ?? "报告")
         .navigationBarTitleDisplayMode(.inline)
-        .deckTopBar()
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showShare = true } label: {
@@ -270,9 +270,8 @@ struct SharedReportsSheet: View {
                 }
                 .padding(16)
             }
-            .navigationTitle("共享管理")
+            .deckTitle("共享管理")
             .navigationBarTitleDisplayMode(.inline)
-            .deckTopBar()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { Button("完成") { dismiss() } }
             }

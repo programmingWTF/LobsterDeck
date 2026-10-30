@@ -5,7 +5,6 @@ struct MemoryView: View {
     var body: some View {
         NavigationStack {
             MemoryBrowser(path: "")
-                .navigationTitle("记忆库")
                 .navigationDestination(for: Route.self) { route in
                     switch route {
                     case .memory(let p): MemoryBrowser(path: p)
@@ -104,9 +103,9 @@ struct MemoryBrowser: View {
         }
         .scrollIndicators(.hidden)
         .refreshable { await load() }
-        .navigationTitle(path.isEmpty ? "LobsterContext" : (path as NSString).lastPathComponent)
-        .navigationBarTitleDisplayMode(path.isEmpty ? .large : .inline)
-        .deckTopBar()
+        .deckTitle(path.isEmpty ? "记忆库" : (path as NSString).lastPathComponent)
+        .navigationBarTitleDisplayMode(.inline)
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .task(id: path) { await load() }
     }
 
@@ -155,9 +154,8 @@ struct MemoryFileView: View {
                 ProgressView()
             }
         }
-        .navigationTitle((path as NSString).lastPathComponent)
+        .deckTitle((path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
-        .deckTopBar()
         .task { await load() }
     }
 

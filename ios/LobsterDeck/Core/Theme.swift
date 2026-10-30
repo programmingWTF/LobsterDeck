@@ -94,27 +94,44 @@ struct GlassPill: View {
     }
 }
 
-// MARK: - Top bar (unified, scroll-edge glass)
+// MARK: - Top bar (no bar layer, glass title pill)
 //
-// Every page's top navigation bar uses this one modifier, and it
-// follows the previous Home page's behaviour, not a permanent mask:
-// when the page is scrolled to the top, there is no bar background
-// at all and the content shows through; once the user scrolls, a
-// thin translucent bar appears behind the title and buttons.
-// That is what `.automatic` visibility does: the system only shows
-// the bar background off the scroll edge. The previous attempt forced
-// `.visible`, which kept an ultraThinMaterial mask on screen even at
-// the top and blocked the view, and the even older Agent detail and
-// Commit detail forced opaque `.systemBackground`, which looked like
-// a solid black bar in dark mode. Neither is used any more.
-// `.ultraThinMaterial` is the lightest material, so the bar that does
-// appear on scroll is a faint glass strip, not a heavy overlay.
+// Every page's top uses this one pattern, modelled on the chat UI
+// the user pointed at, not on a navigation bar layer at all:
+// there is no semi-transparent bar template and no permanent mask.
+// The navigation bar background is hidden, so content shows through
+// at the top and only fades gradually under the toolbar as it
+// scrolls, via the system's soft scroll edge effect. The title
+// itself is a single liquid-glass capsule in the middle of the top,
+// just big enough to enclose the title text, tinted with the page
+// accent: the agent's own colour on agent pages, the app lobster
+// orange everywhere else. Back and trailing buttons stay as the
+// system's own glass circles, so no second glass layer is added
+// around them.
+
+struct DeckTitlePill: View {
+    let text: String
+    var tint: Color = .lobster
+
+    var body: some View {
+        Text(text)
+            .font(.subheadline.weight(.semibold))
+            .lineLimit(1)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .glassEffect(.regular.tint(tint.opacity(0.22)), in: .capsule)
+    }
+}
 
 extension View {
-    func deckTopBar() -> some View {
+    func deckTitle(_ text: String, tint: Color = .lobster) -> some View {
         self
-            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-            .toolbarBackground(.automatic, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    DeckTitlePill(text: text, tint: tint)
+                }
+            }
     }
 }
 

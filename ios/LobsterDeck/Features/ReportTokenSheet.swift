@@ -35,9 +35,8 @@ struct ReportTokenSheet: View {
                 }
                 .padding(18)
             }
-            .navigationTitle("分享与 Token")
+            .deckTitle("分享与 Token")
             .navigationBarTitleDisplayMode(.inline)
-            .deckTopBar()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("完成") { dismiss() }

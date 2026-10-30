@@ -96,9 +96,8 @@ struct SettingsView: View {
                     }
                 }
             }
-            .navigationTitle("设置")
+            .deckTitle("设置")
             .navigationBarTitleDisplayMode(.inline)
-            .deckTopBar()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("完成") { dismiss() }

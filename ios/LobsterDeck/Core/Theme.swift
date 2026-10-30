@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - Palette
 
@@ -167,19 +168,45 @@ struct DeckBackButton: View {
     }
 }
 
+// Scroll-to-top for the centre title pill. SwiftUI pages are backed
+// by UIScrollViews (including WKWebView pages, whose scroll view is
+// also a UIScrollView), so one traversal of the key window finds
+// the on-screen vertical scroller and returns it to its top, without
+// restructuring every page around a ScrollViewReader. Only views
+// actually intersecting the window and already scrolled down move.
+enum DeckScrollToTop {
+    static func scroll() {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+        guard let window = windows.first(where: { $0.isKeyWindow }) ?? windows.first else { return }
+        func visit(_ view: UIView) {
+            if let sv = view as? UIScrollView,
+               !sv.isHidden, sv.alpha > 0.01, sv.window != nil,
+               sv.contentOffset.y > 0 {
+                let frame = sv.convert(sv.bounds, to: window)
+                if frame.intersects(window.bounds) {
+                    sv.setContentOffset(
+                        CGPoint(x: sv.contentOffset.x, y: -sv.adjustedContentInset.top),
+                        animated: true)
+                }
+            }
+            for sub in view.subviews { visit(sub) }
+        }
+        visit(window)
+    }
+}
+
 struct DeckTitlePill: View {
     let text: String
     var tint: Color = .lobster
     // The centre title glass is a real button, not a static label:
     // its glass is .interactive(), so it deforms under a finger,
-    // and tapping it pops one level (detail -> list, sheet -> close;
-    // on a root tab page there is nothing to pop, so it only gives
-    // the glass press feedback). It keeps the "deck-title" morph id,
-    // so it still morphs into the next page's title pill.
-    @Environment(\.dismiss) private var dismiss
-
+    // and tapping it scrolls the current page to its top (see
+    // DeckScrollToTop). It keeps the "deck-title" morph id, so it
+    // still morphs into the next page's title pill.
     var body: some View {
-        Button { dismiss() } label: {
+        Button { DeckScrollToTop.scroll() } label: {
             Text(text)
                 .font(.subheadline.weight(.semibold))
                 .lineLimit(1)
@@ -189,7 +216,7 @@ struct DeckTitlePill: View {
         .buttonStyle(.plain)
         .glassEffect(.regular.tint(tint.opacity(0.22)).interactive(), in: .capsule)
         .deckGlassID("deck-title")
-        .accessibilityLabel("\(text)，点按返回上一级")
+        .accessibilityLabel("\(text)，点按回到顶部")
     }
 }
 

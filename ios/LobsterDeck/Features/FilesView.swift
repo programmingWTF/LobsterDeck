@@ -120,13 +120,20 @@ struct FileBrowserView: View {
         .deckTitle(path.isEmpty ? "文件" : (path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
         .scrollEdgeEffectStyle(.soft, for: .top)
+        .navigationBarBackButtonHidden(!path.isEmpty)
         .toolbar {
+            if !path.isEmpty {
+                ToolbarItem(placement: .topBarLeading) {
+                    DeckBackButton()
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button { importing = true } label: {
                     Image(systemName: uploading ? "arrow.up.circle" : "arrow.up.doc")
                         .font(.system(size: 15, weight: .semibold))
                         .frame(width: 30, height: 30)
                 }
+                .deckGlassID("deck-trailing")
                 .disabled(uploading)
                 .accessibilityLabel("上传文件")
             }
@@ -289,13 +296,18 @@ struct FilePreviewScreen: View {
         }
         .deckTitle((path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                DeckBackButton()
+            }
             if let localURL {
                 ToolbarItem(placement: .topBarTrailing) {
                     ShareLink(item: localURL) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 15, weight: .semibold))
                     }
+                    .deckGlassID("deck-trailing")
                 }
             }
         }

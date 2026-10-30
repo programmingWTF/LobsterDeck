@@ -106,6 +106,14 @@ struct MemoryBrowser: View {
         .deckTitle(path.isEmpty ? "记忆库" : (path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
         .scrollEdgeEffectStyle(.soft, for: .top)
+        .navigationBarBackButtonHidden(!path.isEmpty)
+        .toolbar {
+            if !path.isEmpty {
+                ToolbarItem(placement: .topBarLeading) {
+                    DeckBackButton()
+                }
+            }
+        }
         .task(id: path) { await load() }
     }
 
@@ -156,6 +164,12 @@ struct MemoryFileView: View {
         }
         .deckTitle((path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                DeckBackButton()
+            }
+        }
         .task { await load() }
     }
 

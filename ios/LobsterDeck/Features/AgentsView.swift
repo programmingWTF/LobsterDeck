@@ -193,6 +193,12 @@ struct AgentDetailView: View {
         .deckTitle(info?.displayName ?? agent, tint: color)
         .navigationBarTitleDisplayMode(.inline)
         .scrollEdgeEffectStyle(.soft, for: .top)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                DeckBackButton()
+            }
+        }
         // Detail background stays white + agent colour only; the top
         // itself has no bar layer at all (see deckTitle), only the
         // agent-coloured glass title pill in the middle, not the
@@ -268,9 +274,20 @@ struct CommitRow: View {
 // all. Drawn bars cannot be blank: two full lines plus a shorter,
 // indented third line (the wrapped continuation).
 struct WrapIcon: View {
-    var color: Color = .primary
+    // nil = no explicit colour: the icon takes the system toolbar
+    // button colour, exactly like every other top button. Only the
+    // active state gets an explicit colour (the agent accent).
+    var color: Color? = nil
 
     var body: some View {
+        if let color {
+            lines.foregroundStyle(color)
+        } else {
+            lines
+        }
+    }
+
+    private var lines: some View {
         VStack(alignment: .leading, spacing: 3) {
             Capsule().frame(width: 16, height: 2.2)
             Capsule().frame(width: 16, height: 2.2)
@@ -279,7 +296,6 @@ struct WrapIcon: View {
                 Capsule().frame(width: 10, height: 2.2)
             }
         }
-        .foregroundStyle(color)
     }
 }
 
@@ -374,6 +390,7 @@ struct CommitDetailView: View {
         .deckTitle("变更详情", tint: tint ?? .gray)
         .navigationBarTitleDisplayMode(.inline)
         .scrollEdgeEffectStyle(.soft, for: .top)
+        .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
             // Auto-wrap toggle, top right. Same construction as the
@@ -383,11 +400,15 @@ struct CommitDetailView: View {
             // while wrapping is on, so the state is visible at a glance.
             // The icon is WrapIcon (drawn bars), not an SF Symbol: the
             // old text.wrap image rendered blank in the iOS 26 toolbar.
+            ToolbarItem(placement: .topBarLeading) {
+                DeckBackButton()
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button { wrapLines.toggle() } label: {
-                    WrapIcon(color: wrapLines ? (tint ?? .lobster) : .primary)
+                    WrapIcon(color: wrapLines ? (tint ?? .lobster) : nil)
                         .frame(width: 32, height: 32)
                 }
+                .deckGlassID("deck-trailing")
                 .accessibilityLabel(wrapLines ? "关闭自动换行" : "自动换行")
             }
         }

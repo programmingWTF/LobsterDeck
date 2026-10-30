@@ -39,6 +39,9 @@ struct RootView: View {
 struct MainTabs: View {
     @Environment(AppState.self) private var state
     @State private var selection: DeckTab = .home
+    // One glass namespace for the whole app, so top glass morphs
+    // across tabs and pushes (see DeckGlassKey in Theme.swift).
+    @Namespace private var deckGlass
 
     enum DeckTab: Hashable { case home, reports, files, memory, agents }
 
@@ -61,6 +64,7 @@ struct MainTabs: View {
             }
         }
         .tint(.lobster)
+        .environment(\.deckGlass, deckGlass)
     }
 }
 

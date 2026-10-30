@@ -51,6 +51,7 @@ struct ReportsView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .frame(width: 32, height: 32)
                     }
+                    .deckGlassID("deck-trailing")
                 }
             }
             .sheet(isPresented: $showShared) {
@@ -142,13 +143,18 @@ struct ReportDetailView: View {
         }
         .deckTitle(report?.title ?? "报告")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                DeckBackButton()
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showShare = true } label: {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 15, weight: .semibold))
                         .frame(width: 34, height: 34)
                 }
+                .deckGlassID("deck-trailing")
             }
         }
         .sheet(isPresented: $showShare) {

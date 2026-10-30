@@ -109,6 +109,64 @@ struct GlassPill: View {
 // system's own glass circles, so no second glass layer is added
 // around them.
 
+// Shared liquid-glass morph namespace. MainTabs owns one @Namespace
+// and puts it in the environment, so every page's top glass can
+// morph into the next page's top glass during a push, pop, or tab
+// switch: the centre title pill (same "deck-title" id everywhere),
+// the left back button ("deck-leading") and the right button
+// ("deck-trailing") all keep their id across pages, so iOS 26
+// animates one glass shape into the next instead of fading one
+// out and another in. Root tab pages have no leading button, so
+// root -> detail leading is an appearance, not a morph; detail ->
+// detail leading, and every title/trailing change, do morph.
+private struct DeckGlassKey: EnvironmentKey {
+    static let defaultValue: Namespace.ID? = nil
+}
+
+extension EnvironmentValues {
+    var deckGlass: Namespace.ID? {
+        get { self[DeckGlassKey.self] }
+        set { self[DeckGlassKey.self] = newValue }
+    }
+}
+
+struct DeckGlassIDModifier: ViewModifier {
+    let id: String
+    @Environment(\.deckGlass) private var glass
+
+    func body(content: Content) -> some View {
+        if let glass {
+            content.glassEffectID(id, in: glass)
+        } else {
+            content
+        }
+    }
+}
+
+extension View {
+    func deckGlassID(_ id: String) -> some View {
+        modifier(DeckGlassIDModifier(id: id))
+    }
+}
+
+// The custom back button, so the left top glass can morph too.
+// The system back button cannot carry a glassEffectID, so detail
+// pages hide it and use this instead; dismiss() pops one level in
+// a NavigationStack, and the swipe-back gesture stays enabled.
+struct DeckBackButton: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Button { dismiss() } label: {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 15, weight: .semibold))
+                .frame(width: 32, height: 32)
+        }
+        .deckGlassID("deck-leading")
+        .accessibilityLabel("返回")
+    }
+}
+
 struct DeckTitlePill: View {
     let text: String
     var tint: Color = .lobster
@@ -120,6 +178,7 @@ struct DeckTitlePill: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .glassEffect(.regular.tint(tint.opacity(0.22)), in: .capsule)
+            .deckGlassID("deck-title")
     }
 }
 

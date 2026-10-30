@@ -78,6 +78,7 @@ struct HomeView: View {
                             .font(.system(size: 15, weight: .semibold))
                             .frame(width: 30, height: 30)
                     }
+                    .deckGlassID("deck-trailing")
                     .accessibilityLabel("设置")
                 }
             }

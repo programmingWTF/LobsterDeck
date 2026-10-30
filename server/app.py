@@ -273,6 +273,34 @@ def git(*args, timeout: int = 30) -> str:
     return p.stdout
 
 
+_last_fetch = 0.0
+
+
+def refresh_repo(min_interval: float = 60.0) -> None:
+    """节流 fetch 远端 main（只更新 ref，不动工作区）。
+
+    别的机器（Muse 等）推完记忆后，NAS 本地 clone 不会自己更新，看板会一直
+    显示旧数据 —— 统计前先拉一次 refs，统计读 origin/main 而不是本地 HEAD。
+    """
+    global _last_fetch
+    now = time.time()
+    if now - _last_fetch < min_interval:
+        return
+    _last_fetch = now
+    try:
+        subprocess.run(["git", "-C", str(LC_REPO), "fetch", "--quiet", "origin",
+                        "+refs/heads/main:refs/remotes/origin/main"],
+                       capture_output=True, text=True, timeout=25)
+    except Exception:
+        pass
+
+
+def stats_rev() -> str:
+    p = subprocess.run(["git", "-C", str(LC_REPO), "rev-parse", "--verify", "-q", "origin/main"],
+                       capture_output=True, text=True, timeout=10)
+    return "origin/main" if p.returncode == 0 else "HEAD"
+
+
 def known_agents() -> set:
     names = set(AGENT_LABELS)
     mem = LC_REPO / "Memory"
@@ -304,7 +332,8 @@ def agent_of(files: list, trailer: str = "", author: str = ""):
 
 
 def commits(limit: int = 60, path: str = "Memory") -> list:
-    raw = git("log", f"-{limit}", "--date=iso-strict",
+    refresh_repo()
+    raw = git("log", stats_rev(), f"-{limit}", "--date=iso-strict",
               "--pretty=format:@@@%H%x1f%an%x1f%ad%x1f%s"
               "%x1f%(trailers:key=Agent,valueonly,separator=%x2C)",
               "--name-only", "--", path)

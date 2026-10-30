@@ -170,15 +170,26 @@ struct DeckBackButton: View {
 struct DeckTitlePill: View {
     let text: String
     var tint: Color = .lobster
+    // The centre title glass is a real button, not a static label:
+    // its glass is .interactive(), so it deforms under a finger,
+    // and tapping it pops one level (detail -> list, sheet -> close;
+    // on a root tab page there is nothing to pop, so it only gives
+    // the glass press feedback). It keeps the "deck-title" morph id,
+    // so it still morphs into the next page's title pill.
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        Text(text)
-            .font(.subheadline.weight(.semibold))
-            .lineLimit(1)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
-            .glassEffect(.regular.tint(tint.opacity(0.22)), in: .capsule)
-            .deckGlassID("deck-title")
+        Button { dismiss() } label: {
+            Text(text)
+                .font(.subheadline.weight(.semibold))
+                .lineLimit(1)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.tint(tint.opacity(0.22)).interactive(), in: .capsule)
+        .deckGlassID("deck-title")
+        .accessibilityLabel("\(text)，点按返回上一级")
     }
 }
 

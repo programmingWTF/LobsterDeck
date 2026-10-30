@@ -38,6 +38,7 @@ struct FilesView: View {
             .scrollIndicators(.hidden)
             .refreshable { await state.refreshAll() }
             .navigationTitle("文件")
+            .deckTopBar()
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .folder(let p): FileBrowserView(path: p, scrolls: true)
@@ -119,6 +120,7 @@ struct FileBrowserView: View {
         }
         .navigationTitle(path.isEmpty ? "文件" : (path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(scrolls ? .inline : .large)
+        .deckTopBar()
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { importing = true } label: {
@@ -288,6 +290,7 @@ struct FilePreviewScreen: View {
         }
         .navigationTitle((path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
+        .deckTopBar()
         .toolbar {
             if let localURL {
                 ToolbarItem(placement: .topBarTrailing) {

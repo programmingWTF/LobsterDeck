@@ -41,6 +41,7 @@ struct ReportsView: View {
             .scrollIndicators(.hidden)
             .refreshable { await state.refreshReports() }
             .navigationTitle("报告")
+            .deckTopBar()
             .searchable(text: $query, prompt: "搜索报告")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -140,6 +141,7 @@ struct ReportDetailView: View {
         }
         .navigationTitle(report?.title ?? "报告")
         .navigationBarTitleDisplayMode(.inline)
+        .deckTopBar()
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showShare = true } label: {
@@ -270,6 +272,7 @@ struct SharedReportsSheet: View {
             }
             .navigationTitle("共享管理")
             .navigationBarTitleDisplayMode(.inline)
+            .deckTopBar()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { Button("完成") { dismiss() } }
             }

@@ -50,6 +50,7 @@ struct AgentsView: View {
                 await loadRepo()
             }
             .navigationTitle("Agent")
+            .deckTopBar()
             .task { await loadRepo() }
             .navigationDestination(for: Route.self) { route in
                 switch route {
@@ -190,12 +191,13 @@ struct AgentDetailView: View {
         .tint(color)
         .navigationTitle(info?.displayName ?? agent)
         .navigationBarTitleDisplayMode(.inline)
-        // Detail background must stay white + agent colour only: keep the
-        // navigation bar white (not translucent milky material) and hide
-        // the tab bar, whose glass bar + global orange icon would otherwise
-        // leak orange/milky white into the detail page.
-        .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        // Detail background stays white + agent colour only; the top bar
+        // itself is now the shared slightly-transparent material (see
+        // deckTopBar), not the opaque systemBackground bar that used to
+        // look solid black in dark mode. Hide the tab bar, whose glass
+        // bar + global orange icon would otherwise leak orange into
+        // the detail page.
+        .deckTopBar()
         .toolbar(.hidden, for: .tabBar)
         .task { await load() }
     }
@@ -265,6 +267,7 @@ struct CommitDetailView: View {
 
     @State private var detail: CommitDetail?
     @State private var error: String?
+    @State private var wrapLines = false
     var tintHex: String? = nil
     private var tint: Color? { Color(hexString: tintHex) }
 
@@ -289,7 +292,10 @@ struct CommitDetailView: View {
                     }
 
                     GlassCard(tint: tint ?? .gray, padding: 0) {
-                        ScrollView(.horizontal) {
+                        if wrapLines {
+                            // Auto-wrap: no horizontal scroll, so long
+                            // lines wrap to the card width instead of
+                            // running off the right edge.
                             VStack(alignment: .leading, spacing: 1) {
                                 ForEach(Array(lines.prefix(600).enumerated()), id: \.offset) { _, line in
                                     Text(line.isEmpty ? " " : line)
@@ -298,7 +304,20 @@ struct CommitDetailView: View {
                                         .textSelection(.enabled)
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(12)
+                        } else {
+                            ScrollView(.horizontal) {
+                                VStack(alignment: .leading, spacing: 1) {
+                                    ForEach(Array(lines.prefix(600).enumerated()), id: \.offset) { _, line in
+                                        Text(line.isEmpty ? " " : line)
+                                            .font(.system(size: 11, design: .monospaced))
+                                            .foregroundStyle(color(for: line))
+                                            .textSelection(.enabled)
+                                    }
+                                }
+                                .padding(12)
+                            }
                         }
                     }
                     if lines.count > 600 {
@@ -330,11 +349,26 @@ struct CommitDetailView: View {
         )
         .environment(\.agentTint, tint)
         .tint(tint ?? .gray)
-        .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        .deckTopBar()
         .toolbar(.hidden, for: .tabBar)
         .navigationTitle("变更详情")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // Auto-wrap toggle, top right. Same construction as the
+            // other pages' topBarTrailing buttons (icon only, 32pt
+            // frame), so the system renders it as the same single-layer
+            // liquid-glass round button; the icon turns agent-coloured
+            // while wrapping is on, so the state is visible at a glance.
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { wrapLines.toggle() } label: {
+                    Image(systemName: "text.wrap")
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(width: 32, height: 32)
+                        .foregroundStyle(wrapLines ? (tint ?? .lobster) : .primary)
+                }
+                .accessibilityLabel(wrapLines ? "关闭自动换行" : "自动换行")
+            }
+        }
         .task { await load() }
     }
 

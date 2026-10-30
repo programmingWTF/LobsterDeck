@@ -94,6 +94,23 @@ struct GlassPill: View {
     }
 }
 
+// MARK: - Top bar (unified, slightly transparent)
+//
+// Every page's top navigation bar uses this one modifier, so no page
+// forces an opaque bar any more. Previously Agent detail and Commit
+// detail forced `.systemBackground` + `.visible`, which looked like a
+// solid black bar in dark mode and did not match the other pages.
+// `.ultraThinMaterial` is translucent (slightly transparent) and lets
+// the page background show through a little, the same on every page.
+
+extension View {
+    func deckTopBar() -> some View {
+        self
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+    }
+}
+
 // MARK: - Small parts
 
 struct SectionHeader: View {

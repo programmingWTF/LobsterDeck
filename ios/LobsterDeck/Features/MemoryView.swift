@@ -106,6 +106,7 @@ struct MemoryBrowser: View {
         .refreshable { await load() }
         .navigationTitle(path.isEmpty ? "LobsterContext" : (path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(path.isEmpty ? .large : .inline)
+        .deckTopBar()
         .task(id: path) { await load() }
     }
 
@@ -156,6 +157,7 @@ struct MemoryFileView: View {
         }
         .navigationTitle((path as NSString).lastPathComponent)
         .navigationBarTitleDisplayMode(.inline)
+        .deckTopBar()
         .task { await load() }
     }
 

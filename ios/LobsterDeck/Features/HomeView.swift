@@ -69,6 +69,7 @@ struct HomeView: View {
                 if state.overview == nil { await state.refreshAll() }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .deckTopBar()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
@@ -159,8 +160,54 @@ struct HomeView: View {
         case "agents": agentCard(m)
         case "agentOverview": agentOverviewCard(m)
         case "actions": actionCard(m)
+        case "tile": tileCard(m)
         default: listCard(m)
         }
+    }
+
+    // MARK: - Tile (one event = one half-width block)
+    //
+    // A tile is a single event, not a category card: its title is the
+    // event itself and its subtitle is the concrete detail. It has no
+    // section header and no item rows, so it does not duplicate the
+    // event text. If the tile carries a link (report id, file path or
+    // external url, in that order), the whole tile is tappable.
+
+    private func tileCard(_ m: Module) -> some View {
+        let body = GlassCard(padding: 14) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(m.title ?? "")
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                if let s = m.subtitle {
+                    Text(s)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                }
+            }
+        }
+        if let item = m.items?.first {
+            if let id = item.id {
+                return AnyView(
+                    NavigationLink(value: Route.report(id)) { body }
+                        .buttonStyle(.plain)
+                )
+            } else if let path = item.path {
+                return AnyView(
+                    NavigationLink(value: Route.file(path)) { body }
+                        .buttonStyle(.plain)
+                )
+            } else if let s = item.url, let url = URL(string: s) {
+                return AnyView(
+                    Link(destination: url) { body }
+                        .buttonStyle(.plain)
+                )
+            }
+        }
+        return AnyView(body)
     }
 
     private func heroCard(_ m: Module) -> some View {

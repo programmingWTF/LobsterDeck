@@ -262,6 +262,27 @@ struct CommitRow: View {
 
 // MARK: - Commit detail
 
+// Wrap icon, drawn with shapes instead of an SF Symbol. The old
+// `text.wrap` system image rendered as an empty glass circle in the
+// iOS 26 toolbar, so the button looked like glass with no icon at
+// all. Drawn bars cannot be blank: two full lines plus a shorter,
+// indented third line (the wrapped continuation).
+struct WrapIcon: View {
+    var color: Color = .primary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Capsule().frame(width: 16, height: 2.2)
+            Capsule().frame(width: 16, height: 2.2)
+            HStack(spacing: 0) {
+                Spacer().frame(width: 6)
+                Capsule().frame(width: 10, height: 2.2)
+            }
+        }
+        .foregroundStyle(color)
+    }
+}
+
 struct CommitDetailView: View {
     let sha: String
     @Environment(AppState.self) private var state
@@ -360,12 +381,12 @@ struct CommitDetailView: View {
             // frame), so the system renders it as the same single-layer
             // liquid-glass round button; the icon turns agent-coloured
             // while wrapping is on, so the state is visible at a glance.
+            // The icon is WrapIcon (drawn bars), not an SF Symbol: the
+            // old text.wrap image rendered blank in the iOS 26 toolbar.
             ToolbarItem(placement: .topBarTrailing) {
                 Button { wrapLines.toggle() } label: {
-                    Image(systemName: "text.wrap")
-                        .font(.system(size: 15, weight: .semibold))
+                    WrapIcon(color: wrapLines ? (tint ?? .lobster) : .primary)
                         .frame(width: 32, height: 32)
-                        .foregroundStyle(wrapLines ? (tint ?? .lobster) : .primary)
                 }
                 .accessibilityLabel(wrapLines ? "关闭自动换行" : "自动换行")
             }

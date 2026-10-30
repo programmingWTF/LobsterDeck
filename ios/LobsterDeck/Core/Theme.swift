@@ -94,20 +94,27 @@ struct GlassPill: View {
     }
 }
 
-// MARK: - Top bar (unified, slightly transparent)
+// MARK: - Top bar (unified, scroll-edge glass)
 //
-// Every page's top navigation bar uses this one modifier, so no page
-// forces an opaque bar any more. Previously Agent detail and Commit
-// detail forced `.systemBackground` + `.visible`, which looked like a
-// solid black bar in dark mode and did not match the other pages.
-// `.ultraThinMaterial` is translucent (slightly transparent) and lets
-// the page background show through a little, the same on every page.
+// Every page's top navigation bar uses this one modifier, and it
+// follows the previous Home page's behaviour, not a permanent mask:
+// when the page is scrolled to the top, there is no bar background
+// at all and the content shows through; once the user scrolls, a
+// thin translucent bar appears behind the title and buttons.
+// That is what `.automatic` visibility does: the system only shows
+// the bar background off the scroll edge. The previous attempt forced
+// `.visible`, which kept an ultraThinMaterial mask on screen even at
+// the top and blocked the view, and the even older Agent detail and
+// Commit detail forced opaque `.systemBackground`, which looked like
+// a solid black bar in dark mode. Neither is used any more.
+// `.ultraThinMaterial` is the lightest material, so the bar that does
+// appear on scroll is a faint glass strip, not a heavy overlay.
 
 extension View {
     func deckTopBar() -> some View {
         self
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(.automatic, for: .navigationBar)
     }
 }
 

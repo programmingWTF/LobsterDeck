@@ -21,12 +21,11 @@ targets:
       properties:
         CFBundleDisplayName: 龙虾驾驶舱
         CFBundleShortVersionString: "1.0"
-        # Bumped for the top-bar transparency + commit-detail wrap toggle
-        # + home tile layout so the new IPA is distinguishable from
-        # 1.0 (2): Settings shows "1.0 (3)". Without a bump, installers
-        # treat all builds as the same version and the user cannot tell
-        # old from new.
-        CFBundleVersion: "3"
+        # Bumped for the scroll-edge top bar so the new IPA is
+        # distinguishable from 1.0 (3): Settings shows "1.0 (4)".
+        # Without a bump, installers treat all builds as the same
+        # version and the user cannot tell old from new.
+        CFBundleVersion: "4"
         UILaunchScreen:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:

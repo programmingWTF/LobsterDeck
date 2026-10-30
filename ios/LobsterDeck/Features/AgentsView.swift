@@ -192,11 +192,12 @@ struct AgentDetailView: View {
         .navigationTitle(info?.displayName ?? agent)
         .navigationBarTitleDisplayMode(.inline)
         // Detail background stays white + agent colour only; the top bar
-        // itself is now the shared slightly-transparent material (see
-        // deckTopBar), not the opaque systemBackground bar that used to
-        // look solid black in dark mode. Hide the tab bar, whose glass
-        // bar + global orange icon would otherwise leak orange into
-        // the detail page.
+        // itself is now the shared scroll-edge glass (see deckTopBar):
+        // no bar at the top of the page, a faint ultraThin bar only
+        // once the user scrolls, not the opaque systemBackground bar
+        // that used to look solid black in dark mode. Hide the tab bar,
+        // whose glass bar + global orange icon would otherwise leak
+        // orange into the detail page.
         .deckTopBar()
         .toolbar(.hidden, for: .tabBar)
         .task { await load() }

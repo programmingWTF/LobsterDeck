@@ -77,7 +77,7 @@ struct RecentFileCard: View {
         }
         .padding(14)
         .frame(width: 168, height: 118, alignment: .topLeading)
-        .glassEffect(.regular.tint(Color.lobster.opacity(0.10)), in: .rect(cornerRadius: 20))
+        .glassEffect(.regular.tint(Color.lobster.opacity(0.10)).interactive(), in: .rect(cornerRadius: 20))
         .contentShape(Rectangle())
     }
 

@@ -218,7 +218,7 @@ struct CommitRow: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassEffect(.regular.tint(tint.opacity(0.08)), in: .rect(cornerRadius: 18))
+        .glassEffect(.regular.tint(tint.opacity(0.08)).interactive(), in: .rect(cornerRadius: 18))
         .contentShape(Rectangle())
     }
 }
@@ -243,7 +243,7 @@ struct CommitDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 if let d = detail {
-                    GlassCard {
+                    GlassCard(tint: tint ?? .lobster) {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(d.subject ?? "").font(.headline)
                             Text("\(d.author ?? "") · \(Fmt.day(d.date))")
@@ -254,7 +254,7 @@ struct CommitDetailView: View {
                         }
                     }
 
-                    GlassCard(padding: 0) {
+                    GlassCard(tint: tint ?? .lobster, padding: 0) {
                         ScrollView(.horizontal) {
                             VStack(alignment: .leading, spacing: 1) {
                                 ForEach(Array(lines.prefix(600).enumerated()), id: \.offset) { _, line in
@@ -290,6 +290,8 @@ struct CommitDetailView: View {
             }
             .ignoresSafeArea()
         )
+        .environment(\.agentTint, tint)
+        .tint(tint ?? .lobster)
         .navigationTitle("变更详情")
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }

@@ -99,7 +99,7 @@ struct ReportRow: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassEffect(.regular.tint(Color.lobster.opacity(0.06)), in: .rect(cornerRadius: 20))
+        .glassEffect(.regular.tint(Color.lobster.opacity(0.06)).interactive(), in: .rect(cornerRadius: 20))
         .contentShape(Rectangle())
     }
 }

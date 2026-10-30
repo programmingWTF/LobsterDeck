@@ -45,7 +45,7 @@ struct MainTabs: View {
     var body: some View {
         TabView(selection: $selection) {
             Tab("首页", systemImage: "sparkles", value: .home) {
-                HomeView()
+                HomeView(selection: $selection)
             }
             Tab("报告", systemImage: "doc.richtext", value: .reports) {
                 ReportsView()

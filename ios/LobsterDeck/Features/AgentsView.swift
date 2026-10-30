@@ -64,7 +64,7 @@ struct AgentsView: View {
 struct AgentRow: View {
     let agent: AgentInfo
 
-    private var color: Color { Color(hexString: agent.color) ?? .lobster }
+    private var color: Color { Color(hexString: agent.color) ?? .gray }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 11) {
@@ -123,7 +123,10 @@ struct AgentDetailView: View {
     @Environment(AppState.self) private var state
 
     private var color: Color {
-        Color(hexString: info?.color) ?? .lobster
+        // No theme colour in the server data -> neutral grey, not the
+        // global lobster orange. Detail pages must stay white + agent
+        // colour only; a missing colour must not invent an orange one.
+        Color(hexString: info?.color) ?? .gray
     }
 
     @State private var commits: [AgentCommit] = []
@@ -142,7 +145,7 @@ struct AgentDetailView: View {
                     .buttonStyle(.plain)
                 }
                 if commits.isEmpty && error == nil {
-                    GlassCard { EmptyHint(icon: "clock", text: "这位 Agent 最近没有记忆更新") }
+                    GlassCard(tint: color) { EmptyHint(icon: "clock", text: "这位 Agent 最近没有记忆更新") }
                 }
                 if let error {
                     Text(error).font(.caption).foregroundStyle(.red)
@@ -163,6 +166,13 @@ struct AgentDetailView: View {
         .tint(color)
         .navigationTitle(info?.displayName ?? agent)
         .navigationBarTitleDisplayMode(.inline)
+        // Detail background must stay white + agent colour only: keep the
+        // navigation bar white (not translucent milky material) and hide
+        // the tab bar, whose glass bar + global orange icon would otherwise
+        // leak orange/milky white into the detail page.
+        .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
         .task { await load() }
     }
 
@@ -195,7 +205,7 @@ struct AgentDetailView: View {
 
 struct CommitRow: View {
     let commit: AgentCommit
-    var tint: Color = .lobster
+    var tint: Color = .gray
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -243,7 +253,7 @@ struct CommitDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 if let d = detail {
-                    GlassCard(tint: tint ?? .lobster) {
+                    GlassCard(tint: tint ?? .gray) {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(d.subject ?? "").font(.headline)
                             Text("\(d.author ?? "") · \(Fmt.day(d.date))")
@@ -254,7 +264,7 @@ struct CommitDetailView: View {
                         }
                     }
 
-                    GlassCard(tint: tint ?? .lobster, padding: 0) {
+                    GlassCard(tint: tint ?? .gray, padding: 0) {
                         ScrollView(.horizontal) {
                             VStack(alignment: .leading, spacing: 1) {
                                 ForEach(Array(lines.prefix(600).enumerated()), id: \.offset) { _, line in
@@ -285,13 +295,20 @@ struct CommitDetailView: View {
                     LinearGradient(colors: [tint.opacity(0.30), tint.opacity(0.06), .clear],
                                    startPoint: .topLeading, endPoint: .bottomTrailing)
                 } else {
-                    AppBackground()
+                    // No agent colour -> plain system background only.
+                    // The old AppBackground fallback leaked the global
+                    // orange gradient into a page that must stay white +
+                    // agent colour only.
+                    Color(uiColor: .systemBackground)
                 }
             }
             .ignoresSafeArea()
         )
         .environment(\.agentTint, tint)
-        .tint(tint ?? .lobster)
+        .tint(tint ?? .gray)
+        .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
         .navigationTitle("变更详情")
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }

@@ -5,6 +5,9 @@ struct HomeView: View {
     @Environment(AppState.self) private var state
     @Environment(\.openURL) private var openURL
     @State private var showSettings = false
+    // Tab selection comes from MainTabs so the top stat blocks can jump
+    // to their tab instead of looking like tappable glass that does nothing.
+    @Binding var selection: MainTabs.DeckTab
 
     private var dateLine: String {
         let f = DateFormatter()
@@ -106,9 +109,18 @@ struct HomeView: View {
 
     private func statRow(_ s: Overview.Stats) -> some View {
         HStack(spacing: 10) {
-            stat("报告", value: s.reports ?? 0, icon: "doc.text")
-            stat("Agent", value: s.agents ?? 0, icon: "brain.head.profile")
-            stat("新文件", value: s.files ?? 0, icon: "tray.full")
+            Button { selection = .reports } label: {
+                stat("报告", value: s.reports ?? 0, icon: "doc.text")
+            }
+            .buttonStyle(.plain)
+            Button { selection = .agents } label: {
+                stat("Agent", value: s.agents ?? 0, icon: "brain.head.profile")
+            }
+            .buttonStyle(.plain)
+            Button { selection = .files } label: {
+                stat("新文件", value: s.files ?? 0, icon: "tray.full")
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -125,7 +137,8 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 14).padding(.vertical, 12)
-        .glassEffect(.regular.tint(.lobster.opacity(0.10)), in: .rect(cornerRadius: 20))
+        .glassEffect(.regular.tint(.lobster.opacity(0.10)).interactive(), in: .rect(cornerRadius: 20))
+        .contentShape(Rectangle())
     }
 
     // MARK: modules

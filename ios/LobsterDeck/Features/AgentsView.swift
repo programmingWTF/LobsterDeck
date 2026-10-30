@@ -150,7 +150,26 @@ struct AgentDetailView: View {
                     .buttonStyle(.plain)
                 }
                 if commits.isEmpty && error == nil {
-                    GlassCard(tint: color) { EmptyHint(icon: "clock", text: "这位 Agent 最近没有记忆更新") }
+                    // Do NOT reuse GlassCard + EmptyHint here: GlassCard
+                    // tints at only 0.16 and EmptyHint draws icon/text in
+                    // secondary grey, so the card looked milky/grey, not
+                    // theme-coloured. This empty state uses a stronger
+                    // theme tint and theme-coloured icon/text so it is
+                    // unmistakably the agent's colour.
+                    VStack(spacing: 10) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 26, weight: .light))
+                            .foregroundStyle(color)
+                        Text("这位 Agent 最近没有记忆更新")
+                            .font(.footnote)
+                            .foregroundStyle(color.opacity(0.85))
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 26)
+                    .padding(18)
+                    .glassEffect(.regular.tint(color.opacity(0.30)).interactive(),
+                                 in: .rect(cornerRadius: Theme.corner))
                 }
                 if let error {
                     Text(error).font(.caption).foregroundStyle(.red)

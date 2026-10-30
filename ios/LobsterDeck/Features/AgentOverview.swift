@@ -151,31 +151,37 @@ struct ActivityChart: View {
             let maxV = max(1, daily.map(\.total).max() ?? 1)
             HStack(alignment: .bottom, spacing: 3) {
                 ForEach(daily) { day in
-                    Button {
-                        // Tap again to deselect; tap another day to switch.
-                        selected = (selected?.id == day.id) ? nil : day
-                    } label: {
-                        VStack(spacing: 0) {
-                            Spacer(minLength: 0)
-                            ForEach(day.agents, id: \.agent) { slice in
-                                Rectangle()
-                                    .fill(Color(hexString: slice.color) ?? .gray)
-                                    .frame(height: max(1, CGFloat(slice.count) / CGFloat(maxV) * (geo.size.height - 2)))
-                            }
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        ForEach(day.agents, id: \.agent) { slice in
+                            Rectangle()
+                                .fill(Color(hexString: slice.color) ?? .gray)
+                                .frame(height: max(1, CGFloat(slice.count) / CGFloat(maxV) * (geo.size.height - 2)))
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                        .background(
-                            RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                .fill(selected?.id == day.id ? Color.primary.opacity(0.10) : Color.clear)
-                        )
                     }
-                    .buttonStyle(.plain)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel("\(day.date)，\(day.total) 次提交")
+                    .background(
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .fill(selected?.id == day.id ? Color.primary.opacity(0.10) : Color.clear)
+                    )
                 }
             }
             .frame(height: geo.size.height, alignment: .bottom)
+            .contentShape(Rectangle())
+            // One tap gesture over the whole chart, mapping x -> day index.
+            // The previous version used 30 tiny Buttons (~8pt wide each);
+            // taps between columns, ScrollView tap delays, and Button hit
+            // testing made those feel untappable. Mapping the tap location
+            // makes every point in the chart, including gaps, select the
+            // nearest day. Tap the same day again to deselect.
+            .onTapGesture(coordinateSpace: .local) { location in
+                guard !daily.isEmpty, geo.size.width > 0 else { return }
+                let columnWidth = geo.size.width / CGFloat(daily.count)
+                let index = min(max(Int(location.x / columnWidth), 0), daily.count - 1)
+                let day = daily[index]
+                selected = (selected?.id == day.id) ? nil : day
+            }
+            .accessibilityLabel("近 30 天提交图表，点某处查看那天各 Agent 的提交数")
         }
     }
 }
